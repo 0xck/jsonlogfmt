@@ -134,4 +134,26 @@ _(output was formatted, original is ordinary flat string)_
 `extrakeys` is parent path for `argskey` that means non dict-like args stores in common extra path.
 
 ### Stripping empty values
-By default all values defined in JSON map will be added even some of them are empty, to change this behavior set `strip` variable to `True`. E.g. `fmt = JSONMapFormatter(strip=True)` that prevents appearance of empty values in message. But it does not prevent empty values if they are added via _args_.
+By default all values defined in JSON map will be added even some of them are empty, to change this behavior set `strip` variable to `True`. That prevents appearance of empty values in message. But it does not prevent empty values if they are added via _args_.
+
+```python
+
+newJSONMap = OrderedDict([('time', ''),
+   ('levelname', ''),
+   ('EMPTY', OrderedDict()),
+   ('msg', ''),
+   ('extra', OrderedDict([('funcName', '')])),
+   ('created', None)])
+
+fmt = JSONMapFormatter(jsonmap=newJSONMap, extrakeys=['newExtrapath', 'subpath'], argskey=['newArgspath'], strip=True)
+```
+
+_Output:_
+
+_(output was formatted, original is ordinary flat string)_
+
+```json
+{"time": "2018-02-06 11:49:54,291", "levelname": "INFO", "msg": "MESSAGE", "extra": {"funcName": "<module>"}, "created": 1517906994.2913642, "newExtrapath": {"subpath": {"1st": {"2nd": {"3rd": {"value": 3}}, "value": 2}, "value": 1, "4th": 4, "newArgspath": ["more value", "one more value"]}}}
+```
+
+As you can see there is not `EMPTY` key in output above.
