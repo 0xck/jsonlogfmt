@@ -132,3 +132,6 @@ _(output was formatted, original is ordinary flat string)_
 **Note.**
 
 `extrakeys` is parent path for `argskey` that means non dict-like args stores in common extra path.
+
+### Stripping empty values
+By default all values defined in JSON map will be added even some of them are empty, to change this behavior set `strip` variable to `True`. E.g. `fmt = JSONMapFormatter(strip=True)` that prevents appearance of empty values in message. But it does not prevent empty values if they are added via _args_.
