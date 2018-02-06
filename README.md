@@ -153,7 +153,15 @@ _Output:_
 _(output was formatted, original is ordinary flat string)_
 
 ```json
-{"time": "2018-02-06 11:49:54,291", "levelname": "INFO", "msg": "MESSAGE", "extra": {"funcName": "<module>"}, "created": 1517906994.2913642, "newExtrapath": {"subpath": {"1st": {"2nd": {"3rd": {"value": 3}}, "value": 2}, "value": 1, "4th": 4, "newArgspath": ["more value", "one more value"]}}}
+{'created': 1517906994.2913642,
+ 'extra': {'funcName': '<module>'},
+ 'levelname': 'INFO',
+ 'msg': 'MESSAGE',
+ 'newExtrapath': {'subpath': {'1st': {'2nd': {'3rd': {'value': 3}}, 'value': 2},
+                              '4th': 4,
+                              'newArgspath': ['more value', 'one more value'],
+                              'value': 1}},
+ 'time': '2018-02-06 11:49:54,291'}
 ```
 
 As you can see there is not `EMPTY` key in output above.
