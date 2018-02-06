@@ -35,7 +35,7 @@ class JSONMapFormatter(Formatter):
     """
 
     def __init__(self, jsonmap=JSONMAP, extrakeys=['extra', 'data'],
-                argskey=['args'], null='', stripe=False,
+                argskey=['args'], null='', strip=False,
                 fmt='%(message)s', datefmt=None, style='%'):
         """ init function
 
@@ -49,7 +49,7 @@ class JSONMapFormatter(Formatter):
                     which serves for additional values from nondict-like enties; default: ['args'];
                     this value will be added to `extrakeys` path
                 null (any): terminator shows empty values, useful in `jsonmap`; default: ''
-                stripe (bool): defines if empty `jsonmap` values will be added to message; default: False
+                strip (bool): defines if empty `jsonmap` values will be added to message; default: False
                 fmt (str): logging message format; default: '%(message)s'
                 datefmt (str): logging date format; default: None
                 style (str): logging type of format; default: '%'
@@ -60,7 +60,7 @@ class JSONMapFormatter(Formatter):
         self.extrakeys = extrakeys
         self.argskey = argskey
         self.null = null
-        self.stripe = stripe
+        self.strip = strip
         # dict-like (MutableMapping) obj for future msg which will be based on `jsonmap`
         self.msg = OrderedDict()
         # dict-like (MutableMapping) obj for auxiliary values
@@ -105,15 +105,15 @@ class JSONMapFormatter(Formatter):
                 # which will be used for filling new values
                 msg[i] = OrderedDict()
                 cnt = self._msg_filler(jsonmap[i], data, msg=msg[i])
-                # in case stripe is enabled removes latest key in case no one value was added
-                if self.stripe and cnt == 0:
+                # in case strip is enabled removes latest key in case no one value was added
+                if self.strip and cnt == 0:
                     del msg[i]
 
             # adding value in case one does not exist
             else:
                 item = data.pop(i, self.null)
-                # does not add empty value in case stripe is enabled
-                if self.stripe and item is self.null:
+                # does not add empty value in case strip is enabled
+                if self.strip and item is self.null:
                     continue
                 if msg.get(i, None) is None:
                     msg[i] = item
