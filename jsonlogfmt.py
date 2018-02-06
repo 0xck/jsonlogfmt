@@ -128,8 +128,8 @@ class JSONMapFormatter(Formatter):
                 # does not add empty value in case strip is enabled
                 if self.strip and item is self.null:
                     continue
-                if msg.get(i, None) is None:
-                    msg[i] = item
+                isset = msg.setdefault(i, item)
+                if isset == item:
                     count += 1
 
         return count
@@ -215,7 +215,7 @@ class JSONMapFormatter(Formatter):
 
         # if exception, msg has to me changed because exceptions is not JSON serializable
         if record.exc_info:
-            self.msg['msg'] = self.aux['exctype']
+            self.msg['msg'] = self.aux['excvalue'][0] if self.aux['excvalue'] else self.aux['exctype']
             # prevents generate additional message from Formatter
             record.exc_info = None
 
