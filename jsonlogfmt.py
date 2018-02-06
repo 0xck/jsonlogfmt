@@ -18,6 +18,10 @@ from logging import Formatter
 from collections import Mapping, MutableMapping, OrderedDict
 from functools import reduce
 from json import dumps
+from random import randrange
+
+# sentiel for some checkings
+SENTINEL = hex(randrange(10**16)).encode()
 
 # default JSON map
 JSONMAP = OrderedDict({
@@ -128,8 +132,10 @@ class JSONMapFormatter(Formatter):
                 # does not add empty value in case strip is enabled
                 if self.strip and item is self.null:
                     continue
-                isset = msg.setdefault(i, item)
-                if isset == item:
+                # set key if one does not exist
+                # SENTINEL is for preventing cross with self.null because one can be None for example
+                if msg.get(i, SENTINEL) is SENTINEL:
+                    msg[i] = item
                     count += 1
 
         return count
