@@ -80,7 +80,7 @@ root / 2018-02-05 21:08:20,876 /
 By default `JSONMapFormatter` uses JSONMAP dict-like obj, one can be changed.
 
 ```python
-newJSONMap = {'created': None,
+newJSONMap = {'created': '',
     'extra': OrderedDict([('funcName', '')]),
     'levelname': '',
     'msg': '',
@@ -120,6 +120,8 @@ REMAP = {
   'levelname': 'LEVEL',
   'funcName': 'function'}
 
+fmt = JSONMapFormatter(jsonmap=newJSONMap, remap=REMAP)
+
 ```
 _Output:_
 
@@ -127,16 +129,14 @@ _(output was formatted, original is ordinary flat string)_
 
 ```json
 {'LEVEL': 'INFO',
- 'Time of issue': '2018-02-10 21:08:06,007',
+ 'Time of issue': '2018-02-10 21:25:15,482',
+ 'created': 1518287115.4829462,
  'extra': {'data': {'1st': {'2nd': {'3rd': {'value': 3}}, 'value': 2},
                     '4th': 4,
                     'args': ['more value', 'one more value'],
                     'value': 1},
-           'function': '<module>',
-           'lineno': 31,
-           'pathname': './test.py'},
- 'msg': 'MESSAGE',
- 'name': 'root'}
+           'function': '<module>'},
+ 'msg': 'MESSAGE'}
 
 ```
 
@@ -191,7 +191,7 @@ newJSONMap = OrderedDict([('time', ''),
    ('EMPTY', OrderedDict()),
    ('msg', ''),
    ('extra', OrderedDict([('funcName', '')])),
-   ('created', None)])
+   ('created', '')])
 
 fmt = JSONMapFormatter(jsonmap=newJSONMap, extrakeys=['newExtrapath', 'subpath'], argskey=['newArgspath'], strip=True)
 ```
