@@ -158,6 +158,12 @@ REMAP = {
 ```
 Answer is pretty simple this is more complicated.
 
+Also in addition to Logger object attribetes there are several keys that define some values:
+* _time_ is for formatted time
+* _exctype_ is for name of class of exception
+* _excvalue_ is for exception args attribute (usualyy one contains exception message)
+* _exctrace_ is for formatted exception traceback
+
 ### Custom extrakeys and argskey
 By default for storing extra data _extra: {data: {}}_ path is used (_extra: {data: {args: {}}}_ for non dict-like args) that behavior can be changed. Use `extrakeys` for dict-like obj and `argskey` for non dict-like args). E.g. `fmt = JSONMapFormatter(jsonmap=newJSONMap, extrakeys=['newExtrapath', 'subpath'], argskey=['newArgspath'])` gives:
 
