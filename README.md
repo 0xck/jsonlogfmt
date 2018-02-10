@@ -113,7 +113,7 @@ Be careful, entry values of dict-like obj if they have similar keys on one level
 Also in addition to Logger object attribetes there are several keys that define some values:
 * _time_ is for formatted time
 * _exctype_ is for name of class of exception
-* _excvalue_ is for exception args attribute (usualyy one contains exception message)
+* _excvalue_ is for exception args attribute (usualy one contains exception message)
 * _exctrace_ is for formatted exception traceback
 
 ### Remap default Logger keys
