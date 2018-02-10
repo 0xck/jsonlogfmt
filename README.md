@@ -116,6 +116,8 @@ Also in addition to Logger object attribetes there are several keys that define 
 * _excvalue_ is for exception args attribute (usualy one contains exception message)
 * _exctrace_ is for formatted exception traceback
 
+All of them use default formatting from Formatter class
+
 ### Remap default Logger keys
 JSON map requires to set keys defined in Logger class, like `levelname` or `msg` for retriving appropriate value from Logger object. But those keys can be remapped by using `remap` dict-like obj so that JSON message will contain defined in `remap` keys instead any keys in JSON map. E. g.
 
