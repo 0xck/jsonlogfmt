@@ -51,7 +51,7 @@ class JSONMapFormatter(Formatter):
     That may be useful for some purposes e.g. for creating standard syslog entry with extra JSON message.
     """
 
-    def __init__(self, jsonmap=JSONMAP, extrakeys=['extra', 'data'],
+    def __init__(self, jsonmap=JSONMAP, remap=None, extrakeys=['extra', 'data'],
                 argskey=['args'], null='', strip=False,
                 fmt='%(message)s', datefmt=None, style='%'):
         """ init function
@@ -59,6 +59,7 @@ class JSONMapFormatter(Formatter):
         parameters:
             kwargs:
                 jsonmap (Mapping): dict-like obj describes JSON message default: JSONMAP
+                remap (Mapping): dict-like obj allows to remap default Logger attributes names; default: None
                 extrakeys (MutableSequence): sequence contains path to extra key,
                     which serves for additional values created from dict-like message entries;
                     default: ['extra', 'data']
@@ -74,6 +75,7 @@ class JSONMapFormatter(Formatter):
 
         super().__init__(fmt=fmt, datefmt=datefmt, style=style)
         self.jsonmap = jsonmap
+        self.remap = remap
         self.extrakeys = extrakeys
         self.argskey = argskey
         self.null = null
@@ -132,8 +134,13 @@ class JSONMapFormatter(Formatter):
                 # does not add empty value in case strip is enabled
                 if self.strip and item is self.null:
                     continue
+
+                # remap JSON message key with remap dict-like obj
+                if self.remap:
+                    i = self.remap.get(i, i)
+
                 # set key if one does not exist
-                # SENTINEL is for preventing cross with self.null because one can be None for example
+                # SENTINEL is for preventing crossing with self.null because one for example can be None
                 if msg.get(i, SENTINEL) is SENTINEL:
                     msg[i] = item
                     count += 1

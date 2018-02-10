@@ -110,6 +110,54 @@ _(output was formatted, original is ordinary flat string)_
 
 Be careful, entry values of dict-like obj if they have similar keys on one level **will be rewritten** on value of latest obj.
 
+
+### Remap default Logger keys
+JSON map requires to set keys defined in Logger class, like `levelname` or `msg` for retriving appropriate value from Logger object. But those keys can be remapped by using `remap` dict-like obj so that JSON message will contain defined in `remap` keys instead any keys in JSON map. E. g.
+
+```python
+REMAP = {
+  'time': 'Time of issue',
+  'levelname': 'LEVEL',
+  'funcName': 'function'}
+
+```
+_Output:_
+
+_(output was formatted, original is ordinary flat string)_
+
+```json
+{'LEVEL': 'INFO',
+ 'Time of issue': '2018-02-10 21:08:06,007',
+ 'extra': {'data': {'1st': {'2nd': {'3rd': {'value': 3}}, 'value': 2},
+                    '4th': 4,
+                    'args': ['more value', 'one more value'],
+                    'value': 1},
+           'function': '<module>',
+           'lineno': 31,
+           'pathname': './test.py'},
+ 'msg': 'MESSAGE',
+ 'name': 'root'}
+
+```
+
+**Note.**
+
+Maybe you have a question: why would you not use JSON map for structure of JSON message and remap for defining Logger keys that has to be changed? E. g. 
+```python
+JSONMAP = {
+  'Time':'',
+  'LEVEL':'',
+  'extra':
+    'Message':''}
+
+REMAP = {
+  'Time': 'time',
+  'LEVEL': 'levelname',
+  'Message': 'msg'}
+
+```
+Answer is pretty simple this is more complicated.
+
 ### Custom extrakeys and argskey
 By default for storing extra data _extra: {data: {}}_ path is used (_extra: {data: {args: {}}}_ for non dict-like args) that behavior can be changed. Use `extrakeys` for dict-like obj and `argskey` for non dict-like args). E.g. `fmt = JSONMapFormatter(jsonmap=newJSONMap, extrakeys=['newExtrapath', 'subpath'], argskey=['newArgspath'])` gives:
 
