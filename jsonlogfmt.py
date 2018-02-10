@@ -110,8 +110,10 @@ class JSONMapFormatter(Formatter):
                 data (Mapping): dict-like obj contains values for adding
             kwargs:
                 msg (MutableMapping): dict-like obj for adding; default: None
+
+            returns (bool): if values was added to keys
         """
-        count = 0
+        empty = True
         # defines msg from self, that means 1st enter to recursively bypassing
         msg = self.msg if msg is None else msg
 
@@ -123,9 +125,9 @@ class JSONMapFormatter(Formatter):
                 # creates a new dict-like (MutableMapping) obj
                 # which will be used for filling new values
                 msg[i] = OrderedDict()
-                cnt = self._msg_filler(jsonmap[i], data, msg=msg[i])
+                emp = self._msg_filler(jsonmap[i], data, msg=msg[i])
                 # in case strip is enabled removes latest key in case no one value was added
-                if self.strip and cnt == 0:
+                if self.strip and emp:
                     del msg[i]
 
             # adding value in case one does not exist
@@ -143,9 +145,10 @@ class JSONMapFormatter(Formatter):
                 # SENTINEL is for preventing crossing with self.null because one for example can be None
                 if msg.get(i, SENTINEL) is SENTINEL:
                     msg[i] = item
-                    count += 1
+                    if empty:
+                        empty = False
 
-        return count
+        return empty
 
     def generate_msg(self, record):
         """ set msg data from given log messages and args
