@@ -21,7 +21,7 @@ from json import dumps
 from random import randrange
 
 # sentiel for some checkings
-SENTINEL = hex(randrange(10**16)).encode()
+CustomNone = hex(randrange(10**16)).encode()
 
 # default JSON map
 JSONMAP = OrderedDict({
@@ -161,8 +161,8 @@ class JSONMapFormatter(Formatter):
                     i = self.remap.get(i, i)
 
                 # set key if one does not exist
-                # SENTINEL is for preventing crossing with self.null because one for example can be None
-                if msg.get(i, SENTINEL) is SENTINEL:
+                # CustomNone is for preventing crossing with self.null because one for example can be None
+                if msg.get(i, CustomNone) is CustomNone:
                     msg[i] = item
                     if empty:
                         empty = False
