@@ -41,6 +41,13 @@ JSONMAP = OrderedDict({
     })
 })
 
+AUXMAP = {
+    'time': 'time',
+    'exctype': 'exctype',
+    'excvalue': 'excvalue',
+    'exctrace': 'exctrace'
+}
+
 
 class JSONMapFormatter(Formatter):
     """ JSONMapFormatter allows format standard logging messasges to JSON
@@ -51,15 +58,18 @@ class JSONMapFormatter(Formatter):
     That may be useful for some purposes e.g. for creating standard syslog entry with extra JSON message.
     """
 
-    def __init__(self, jsonmap=JSONMAP, remap=None, extrakeys=['extra', 'data'],
-                argskey=['args'], null='', strip=False,
-                fmt='%(message)s', datefmt=None, style='%'):
+    def __init__(
+            self, jsonmap=JSONMAP, remap=None, auxmap={},
+            extrakeys=['extra', 'data'], argskey=['args'], null='',
+            strip=False, fmt='%(message)s', datefmt=None, style='%'):
         """ init function
 
         parameters:
             kwargs:
                 jsonmap (Mapping): dict-like obj describes JSON message default: JSONMAP
                 remap (Mapping): dict-like obj allows to remap default Logger attributes names; default: None
+                auxmap (Mapping): dict-like obj allows to remap auxiliary dict-like obj,
+                    which serves for contain additional values for time and exception; default: {}
                 extrakeys (MutableSequence): sequence contains path to extra key,
                     which serves for additional values created from dict-like message entries;
                     default: ['extra', 'data']
@@ -85,6 +95,13 @@ class JSONMapFormatter(Formatter):
         # dict-like (MutableMapping) obj for auxiliary values
         # one is always used for generating messages
         self.aux = OrderedDict()
+        # make new auxmap from AUXMAP and given
+        if auxmap:
+            tmp_auxmap = AUXMAP.copy()
+            tmp_auxmap.update(auxmap)
+            self.auxmap = tmp_auxmap
+        else:
+            self.auxmap = AUXMAP
 
     def _set_extra(self, data, keys, value):
         """ sets values to nested dict from keys path
@@ -97,7 +114,8 @@ class JSONMapFormatter(Formatter):
         """
 
         # set extra path
-        reduce(lambda x, key: x.setdefault(key, type(data)()), keys[:-1], data)  # type(a)() is more universal than {}
+        # type(a)() is more universal than {}
+        reduce(lambda x, key: x.setdefault(key, type(data)()), keys[:-1], data)
         # set value
         reduce(lambda x, key: x.setdefault(key, value), keys, data)
 
@@ -199,13 +217,13 @@ class JSONMapFormatter(Formatter):
         """
 
         # formatted time entry
-        self.aux['time'] = super().formatTime(record)
+        self.aux[self.auxmap['time']] = super().formatTime(record)
 
         # formatted exception entry
         if record.exc_info:
-            self.aux['exctype'] = record.exc_info[0].__name__
-            self.aux['excvalue'] = record.exc_info[1].args
-            self.aux['exctrace'] = record.exc_text if record.exc_text else super().formatException(record.exc_info)
+            self.aux[self.auxmap['exctype']] = record.exc_info[0].__name__
+            self.aux[self.auxmap['excvalue']] = record.exc_info[1].args
+            self.aux[self.auxmap['exctrace']] = record.exc_text if record.exc_text else super().formatException(record.exc_info)
 
     def format(self, record):
         """ rewriting Formatter().format method
@@ -231,7 +249,7 @@ class JSONMapFormatter(Formatter):
 
         # if exception, msg has to me changed because exceptions is not JSON serializable
         if record.exc_info:
-            self.msg['msg'] = self.aux['excvalue'][0] if self.aux['excvalue'] else self.aux['exctype']
+            self.msg['msg'] = self.aux[self.auxmap['excvalue']][0] if self.aux[self.auxmap['excvalue']] else self.aux[self.auxmap['exctype']]
             # prevents generate additional message from Formatter
             record.exc_info = None
 
