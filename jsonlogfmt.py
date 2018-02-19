@@ -15,7 +15,7 @@
 # Using is pretty simple, just use JSONMapFormatter obj in `setFormatter` of logging.Handler obj
 
 from logging import Formatter
-from collections import Mapping, MutableMapping, OrderedDict
+from collections import Mapping, MutableMapping, OrderedDict, namedtuple
 from functools import reduce
 from json import dumps
 from random import randrange
@@ -41,12 +41,14 @@ JSONMAP = OrderedDict({
     })
 })
 
-AUXMAP = {
+AUXMAP = OrderedDict({
     'time': 'time',
     'exctype': 'exctype',
     'excvalue': 'excvalue',
     'exctrace': 'exctrace'
-}
+})
+
+Aux = namedtuple('Aux', AUXMAP.keys())
 
 
 class JSONMapFormatter(Formatter):
@@ -96,12 +98,11 @@ class JSONMapFormatter(Formatter):
         # one is always used for generating messages
         self.aux = OrderedDict()
         # make new auxmap from AUXMAP and given
+        tmp_auxmap = AUXMAP.copy()
         if auxmap:
-            tmp_auxmap = AUXMAP.copy()
             tmp_auxmap.update(auxmap)
-            self.auxmap = tmp_auxmap
-        else:
-            self.auxmap = AUXMAP
+
+        self.auxmap = Aux(*tmp_auxmap.values())
 
     def _set_extra(self, data, keys, value):
         """ sets values to nested dict from keys path
@@ -217,13 +218,13 @@ class JSONMapFormatter(Formatter):
         """
 
         # formatted time entry
-        self.aux[self.auxmap['time']] = super().formatTime(record)
+        self.aux[self.auxmap.time] = super().formatTime(record)
 
         # formatted exception entry
         if record.exc_info:
-            self.aux[self.auxmap['exctype']] = record.exc_info[0].__name__
-            self.aux[self.auxmap['excvalue']] = record.exc_info[1].args
-            self.aux[self.auxmap['exctrace']] = record.exc_text if record.exc_text else super().formatException(record.exc_info)
+            self.aux[self.auxmap.exctype] = record.exc_info[0].__name__
+            self.aux[self.auxmap.excvalue] = record.exc_info[1].args
+            self.aux[self.auxmap.exctrace] = record.exc_text if record.exc_text else super().formatException(record.exc_info)
 
     def format(self, record):
         """ rewriting Formatter().format method
@@ -249,7 +250,7 @@ class JSONMapFormatter(Formatter):
 
         # if exception, msg has to me changed because exceptions is not JSON serializable
         if record.exc_info:
-            self.msg['msg'] = self.aux[self.auxmap['excvalue']][0] if self.aux[self.auxmap['excvalue']] else self.aux[self.auxmap['exctype']]
+            self.msg['msg'] = self.aux[self.auxmap.excvalue][0] if self.aux[self.auxmap.excvalue] else self.aux[self.auxmap.exctype]
             # prevents generate additional message from Formatter
             record.exc_info = None
 
