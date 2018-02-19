@@ -188,6 +188,62 @@ _(output was formatted, original is ordinary flat string)_
 
 `extrakeys` is parent path for `argskey` that means non dict-like args stores in common extra path.
 
+
+### Remap time and exception keys:
+For some reason additional keys for time and exception defined in separate dict-like obj. By default those keys and values are:
+* _time_ for formatted time (default formatting from Formatter class)
+* _exctype_ for exception class
+* _excvalue_ exception arguments, usually message
+* _exctrace_ exception traceback
+
+All of them or just part can be changed. Also JSONMap has to changed for new keys. E.g. 
+
+```python
+
+AUXMAP = {
+    'exctype': 'type',
+    'excvalue': 'value',
+    'exctrace': 'traceback'
+}
+
+
+JSONMAP = OrderedDict({
+    'time': '',
+    'levelname': '',
+    'name': '',
+    'msg': '',
+    'extra': OrderedDict({
+            'exception': OrderedDict({
+                'type': '',
+                'value': '',
+                'traceback': ''
+            })
+    })
+})
+
+fmt = JSONMapFormatter(jsonmap=JSONMAP, auxmap=AUXMAP)
+
+```
+
+_Output:_
+
+_(output was formatted, original is ordinary flat string)_
+
+```json
+
+{'extra': {'exception': {'traceback': 'Traceback (most recent call last):\n'
+                                      '  File "./test.py", line 57, in '
+                                      '<module>\n'
+                                      '    1/0\n'
+                                      'ZeroDivisionError: division by zero',
+                         'type': 'ZeroDivisionError',
+                         'value': ['division by zero']}},
+ 'levelname': 'ERROR',
+ 'msg': 'division by zero',
+ 'name': 'root',
+ 'time': '2018-02-19 15:35:41,990'}
+```
+
 ### Stripping empty values
 By default all values defined in JSON map will be added even some of them are empty, to change this behavior set `strip` variable to `True`. That prevents appearance of empty values in message. But it does not prevent empty values if they are added via _args_.
 
