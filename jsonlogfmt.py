@@ -248,10 +248,11 @@ class JSONMapFormatter(Formatter):
         # filling data from record
         self.generate_msg(record)
 
-        # if exception, msg has to me changed because exceptions is not JSON serializable
+        # if exception, msg has to be changed because exceptions is not JSON serializable
         if record.exc_info:
             self.msg['msg'] = self.aux[self.auxmap.excvalue][0] if self.aux[self.auxmap.excvalue] else self.aux[self.auxmap.exctype]
             # prevents generate additional message from Formatter
+            # in case the same obj is used for differnt handlers
             record.exc_info = None
 
         # set record message
