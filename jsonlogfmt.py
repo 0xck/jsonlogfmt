@@ -17,7 +17,7 @@
 from logging import Formatter
 from collections import Mapping, MutableMapping, OrderedDict, namedtuple
 from functools import reduce
-from json import dumps
+from json import dumps, loads
 from random import randrange
 
 # sentiel for some checkings
@@ -60,6 +60,19 @@ class JSONMapFormatter(Formatter):
     That may be useful for some purposes e.g. for creating standard syslog entry with extra JSON message.
     """
 
+    @staticmethod
+    def json2obj(data):
+        """converts if it is necessary the data from JSON to python obj
+
+        parameters:
+            args:
+                data (str or Mapping or Sequence): obj for conversion
+
+            returns (obj): python obj from JSON or original obj
+        """
+
+        return data if not isinstance(data, str) else loads(data)
+
     def __init__(
             self, jsonmap=JSONMAP, remap=None, auxmap={},
             extrakeys=['extra', 'data'], argskey=['args'], null='',
@@ -68,14 +81,14 @@ class JSONMapFormatter(Formatter):
 
         parameters:
             kwargs:
-                jsonmap (Mapping): dict-like obj describes JSON message default: JSONMAP
-                remap (Mapping): dict-like obj allows to remap default Logger attributes names; default: None
-                auxmap (Mapping): dict-like obj allows to remap auxiliary dict-like obj,
+                jsonmap (str or Mapping): dict-like obj describes JSON message default: JSONMAP
+                remap (str or Mapping): dict-like obj allows to remap default Logger attributes names; default: None
+                auxmap (str or Mapping): dict-like obj allows to remap auxiliary dict-like obj,
                     which serves for contain additional values for time and exception; default: {}
-                extrakeys (MutableSequence): sequence contains path to extra key,
+                extrakeys (str or MutableSequence): sequence contains path to extra key,
                     which serves for additional values created from dict-like message entries;
                     default: ['extra', 'data']
-                argskey (MutableSequence): sequence contains path to args key,
+                argskey (str or MutableSequence): sequence contains path to args key,
                     which serves for additional values from nondict-like enties; default: ['args'];
                     this value will be added to `extrakeys` path
                 null (any): terminator shows empty values, useful in `jsonmap`; default: ''
@@ -86,10 +99,10 @@ class JSONMapFormatter(Formatter):
         """
 
         super().__init__(fmt=fmt, datefmt=datefmt, style=style)
-        self.jsonmap = jsonmap
-        self.remap = remap
-        self.extrakeys = extrakeys
-        self.argskey = argskey
+        self.jsonmap = self.json2obj(jsonmap)
+        self.remap = self.json2obj(remap)
+        self.extrakeys = self.json2obj(extrakeys)
+        self.argskey = self.json2obj(argskey)
         self.null = null
         self.strip = strip
         # dict-like (MutableMapping) obj for future msg which will be based on `jsonmap`
@@ -100,7 +113,7 @@ class JSONMapFormatter(Formatter):
         # make new auxmap from AUXMAP and given
         tmp_auxmap = AUXMAP.copy()
         if auxmap:
-            tmp_auxmap.update(auxmap)
+            tmp_auxmap.update(self.json2obj(auxmap))
 
         self.auxmap = Aux(*tmp_auxmap.values())
 

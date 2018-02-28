@@ -77,7 +77,7 @@ root / 2018-02-05 21:08:20,876 /
 ```
 
 ### Custom JSONMap
-By default `JSONMapFormatter` uses JSONMAP dict-like obj, one can be changed.
+By default `JSONMapFormatter` uses JSONMAP dict-like obj, one can be changed. Use dict-like obj or JSON.
 
 ```python
 newJSONMap = {'created': '',
@@ -119,7 +119,7 @@ Also in addition to Logger object attribetes there are several keys that define 
 All of them use default formatting from Formatter class
 
 ### Remap default Logger keys
-JSON map requires to set keys defined in Logger class, like `levelname` or `msg` for retriving appropriate value from Logger object. But those keys can be remapped by using `remap` dict-like obj so that JSON message will contain defined in `remap` keys instead any keys in JSON map. E. g.
+JSON map requires to set keys defined in Logger class, like `levelname` or `msg` for retriving appropriate value from Logger object. But those keys can be remapped by using `remap` dict-like obj so that JSON message will contain defined in `remap` keys instead any keys in JSON map. Use dict-like obj or JSON. E.g.:
 
 ```python
 REMAP = {
@@ -149,7 +149,7 @@ _(output was formatted, original is ordinary flat string)_
 
 **Note.**
 
-Maybe you have a question: why would you not use JSON map for structure of JSON message and remap for defining Logger keys that has to be changed? E. g. 
+Maybe you have a question: why would you not use JSON map for structure of JSON message and remap for defining Logger keys that has to be changed? E.g.:
 ```python
 JSONMAP = {
   'Time':'',
@@ -166,7 +166,7 @@ REMAP = {
 Answer is pretty simple this is more complicated.
 
 ### Custom extrakeys and argskey
-By default for storing extra data _extra: {data: {}}_ path is used (_extra: {data: {args: {}}}_ for non dict-like args) that behavior can be changed. Use `extrakeys` for dict-like obj and `argskey` for non dict-like args). E.g. `fmt = JSONMapFormatter(jsonmap=newJSONMap, extrakeys=['newExtrapath', 'subpath'], argskey=['newArgspath'])` gives:
+By default for storing extra data _extra: {data: {}}_ path is used (_extra: {data: {args: {}}}_ for non dict-like args) that behavior can be changed. Use `extrakeys` for dict-like obj and `argskey` for non dict-like args). Use list-like obj or JSON. E.g. `fmt = JSONMapFormatter(jsonmap=newJSONMap, extrakeys=['newExtrapath', 'subpath'], argskey=['newArgspath'])` gives:
 
 _Output:_
 
@@ -196,7 +196,7 @@ For some reason additional keys for time and exception defined in separate dict-
 * _excvalue_ exception arguments, usually message
 * _exctrace_ exception traceback
 
-All of them or just part can be changed. Also JSONMap has to changed for new keys. E.g. 
+All of them or just part can be changed. Also JSONMap has to changed for new keys. Use dict-like obj or JSON. E.g.:
 
 ```python
 
