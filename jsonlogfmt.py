@@ -20,9 +20,6 @@ from functools import reduce
 from json import dumps, loads
 from random import randrange
 
-# sentiel for some checkings
-CustomNone = hex(randrange(10**16)).encode()
-
 # default JSON map
 JSONMAP = OrderedDict({
     'time': '',
@@ -41,6 +38,7 @@ JSONMAP = OrderedDict({
     })
 })
 
+# default AUX JSON map for exceptions and time values
 AUXMAP = OrderedDict({
     'time': 'time',
     'exctype': 'exctype',
@@ -71,7 +69,7 @@ class JSONMapFormatter(Formatter):
             returns (obj): python obj from JSON or original obj
         """
 
-        return data if not isinstance(data, str) else loads(data)
+        return data if not isinstance(data, (str, bytes, bytearray)) else loads(data, object_hook=OrderedDict)
 
     def __init__(
             self, jsonmap=JSONMAP, remap=None, auxmap={},
@@ -81,14 +79,14 @@ class JSONMapFormatter(Formatter):
 
         parameters:
             kwargs:
-                jsonmap (str or Mapping): dict-like obj describes JSON message default: JSONMAP
-                remap (str or Mapping): dict-like obj allows to remap default Logger attributes names; default: None
-                auxmap (str or Mapping): dict-like obj allows to remap auxiliary dict-like obj,
+                jsonmap (str/byte-like JSON or Mapping): dict-like obj describes JSON message default: JSONMAP
+                remap (str/byte-like JSON  or Mapping): dict-like obj allows to remap default Logger attributes names; default: None
+                auxmap (str/byte-like JSON  or Mapping): dict-like obj allows to remap auxiliary dict-like obj,
                     which serves for contain additional values for time and exception; default: {}
-                extrakeys (str or MutableSequence): sequence contains path to extra key,
+                extrakeys (str/byte-like JSON  or MutableSequence): sequence contains path to extra key,
                     which serves for additional values created from dict-like message entries;
                     default: ['extra', 'data']
-                argskey (str or MutableSequence): sequence contains path to args key,
+                argskey (str/byte-like JSON or MutableSequence): sequence contains path to args key,
                     which serves for additional values from nondict-like enties; default: ['args'];
                     this value will be added to `extrakeys` path
                 null (any): terminator shows empty values, useful in `jsonmap`; default: ''
@@ -110,12 +108,14 @@ class JSONMapFormatter(Formatter):
         # dict-like (MutableMapping) obj for auxiliary values
         # one is always used for generating messages
         self.aux = OrderedDict()
-        # make new auxmap from AUXMAP and given
+        # make new auxmap from default AUXMAP and given value
         tmp_auxmap = AUXMAP.copy()
         if auxmap:
             tmp_auxmap.update(self.json2obj(auxmap))
 
         self.auxmap = Aux(*tmp_auxmap.values())
+        # customNone is for preventing crossing with self.null because one for example can be None
+        self.customNone = hex(randrange(10**16)).encode()
 
     def _set_extra(self, data, keys, value):
         """ sets values to nested dict from keys path
@@ -174,8 +174,7 @@ class JSONMapFormatter(Formatter):
                     i = self.remap.get(i, i)
 
                 # set key if one does not exist
-                # CustomNone is for preventing crossing with self.null because one for example can be None
-                if msg.get(i, CustomNone) is CustomNone:
+                if msg.get(i, self.customNone) is self.customNone:
                     msg[i] = item
                     if empty:
                         empty = False
